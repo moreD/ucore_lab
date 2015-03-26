@@ -92,12 +92,28 @@ lab1_print_cur_status(void) {
 
 static void
 lab1_switch_to_user(void) {
-    //LAB1 CHALLENGE 1 : TODO
+    //LAB1 CHALLENGE 1 : 
+	asm volatile (
+		"movl %%esp, %%eax;"
+		"subl $0x4, %%esp;"
+		"pushl %%eax;"
+		"int %0;"
+		:
+		: "i" (T_SWITCH_TOU)
+	);
 }
 
 static void
 lab1_switch_to_kernel(void) {
-    //LAB1 CHALLENGE 1 :  TODO
+    //LAB1 CHALLENGE 1 :  
+	int esp = 0;
+	asm volatile (
+		"movl %%esp, %0;"
+		"int %1;"
+		"movl %0, %%esp;"
+		: "=r" (esp)
+		: "i" (T_SWITCH_TOK), "0" (esp)
+	);
 }
 
 static void
