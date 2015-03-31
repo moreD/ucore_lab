@@ -116,6 +116,7 @@ static void
 default_free_pages(struct Page *base, size_t n) {
 	assert(n > 0);
 	struct Page *p = base;
+	set_page_ref(base, 0);
 	list_entry_t *prev = &free_list;
 	SetPageProperty(base);
 	base->property = n;

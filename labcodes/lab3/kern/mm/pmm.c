@@ -395,6 +395,7 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
 #endif
 	pde_t* pdep = &pgdir[PDX(la)];
 	if ( ! ((*pdep) & PTE_P) ) {
+		if (!create) return NULL;
 		struct Page* page = alloc_page();
 		if (page == NULL) return NULL;
 		set_page_ref(page, 1);
