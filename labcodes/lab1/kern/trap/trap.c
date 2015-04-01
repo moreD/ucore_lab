@@ -145,7 +145,6 @@ print_regs(struct pushregs *regs) {
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
-	static int clock_count = 0;
 
     switch (tf->tf_trapno) {
     case IRQ_OFFSET + IRQ_TIMER:
@@ -155,9 +154,8 @@ trap_dispatch(struct trapframe *tf) {
          * (2) Every TICK_NUM cycle, you can print some info using a funciton, such as print_ticks().
          * (3) Too Simple? Yes, I think so!
          */
-		if (++clock_count == 100) {
+		if (++ticks % 100 == 0) {
 			print_ticks();
-			clock_count = 0;
 		}
         break;
     case IRQ_OFFSET + IRQ_COM1:

@@ -244,8 +244,6 @@ trap_dispatch(struct trapframe *tf) {
 			print_ticks();
 			current->need_resched = 1;
 		}
-		if (ticks == TICK_NUM * 100)
-			panic("run for too long!\n");
         break;
     case IRQ_OFFSET + IRQ_COM1:
         c = cons_getc();

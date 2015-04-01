@@ -192,7 +192,6 @@ extern struct mm_struct *check_mm_struct;
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
-	static int clock_count = 0;
 
     int ret=0;
 
@@ -231,7 +230,7 @@ trap_dispatch(struct trapframe *tf) {
         /* you should upate you lab1 code (just add ONE or TWO lines of code):
          *    Every TICK_NUM cycle, you should set current process's current->need_resched = 1
          */
-		if (++clock_count % TICK_NUM == 0) {
+		if (++ticks % TICK_NUM == 0) {
 			print_ticks();
 			current->need_resched = 1;
 		}
