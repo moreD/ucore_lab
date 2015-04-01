@@ -123,7 +123,7 @@ stride_proc_tick(struct run_queue *rq, struct proc_struct *proc) {
      /* LAB6: YOUR CODE */
 }
 
-struct sched_class default_sched_class = {
+struct sched_class stride_sched_class = {
      .name = "stride_scheduler",
      .init = stride_init,
      .enqueue = stride_enqueue,
