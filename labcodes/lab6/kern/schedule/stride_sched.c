@@ -120,10 +120,10 @@ stride_pick_next(struct run_queue *rq) {
       * (2) update p;s stride value: p->lab6_stride
       * (3) return p
       */
+	if (rq->lab6_run_pool == NULL) return NULL;
 	struct proc_struct *proc = NULL;
 	if ((proc = le2proc(rq->lab6_run_pool, lab6_run_pool)) == NULL) return NULL;
 	proc->lab6_stride += BIG_STRIDE / proc->lab6_priority;
-	//cprintf("proc 0x%x selected\n", proc);
 	return proc;
 }
 
