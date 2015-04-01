@@ -193,7 +193,6 @@ extern struct mm_struct *check_mm_struct;
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
-	static int clock_count = 0;
 
     int ret=0;
 
@@ -241,11 +240,11 @@ trap_dispatch(struct trapframe *tf) {
          *    You can use one funcitons to finish all these things.
          */
 		run_timer_list();
-		if (++clock_count % TICK_NUM == 0) {
+		if (++ticks % TICK_NUM == 0) {
 			print_ticks();
 			current->need_resched = 1;
 		}
-		if (clock_count == TICK_NUM * 100)
+		if (ticks == TICK_NUM * 100)
 			panic("run for too long!\n");
         break;
     case IRQ_OFFSET + IRQ_COM1:
