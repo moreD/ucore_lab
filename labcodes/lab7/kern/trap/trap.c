@@ -232,12 +232,14 @@ trap_dispatch(struct trapframe *tf) {
          *    Every TICK_NUM cycle, you should set current process's current->need_resched = 1
          */
         /* LAB6 2013011407 */
-        /* IMPORTANT FUNCTIONS:
+        /* you should upate you lab5 code
+         * IMPORTANT FUNCTIONS:
+	     * sched_class_proc_tick
+         */         
+        /* LAB7 2013011407 */
+        /* you should upate you lab6 code
+         * IMPORTANT FUNCTIONS:
 	     * run_timer_list
-	     *----------------------
-	     * you should update your lab5 code (just add ONE or TWO lines of code):
-         *    Every tick, you should update the system time, iterate the timers, and trigger the timers which are end to call scheduler.
-         *    You can use one funcitons to finish all these things.
          */
 		run_timer_list();
 		if (++ticks % TICK_NUM == 0) {
