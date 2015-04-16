@@ -168,6 +168,7 @@ proc_run(struct proc_struct *proc) {
             lcr3(next->cr3);
             switch_to(&(prev->context), &(next->context));
         }
+        cprintf("proc %d %s now RUN on CPU\n", proc->pid, get_proc_name(proc));
         local_intr_restore(intr_flag);
     }
 }
@@ -275,6 +276,7 @@ do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
     //    1. call alloc_proc to allocate a proc_struct
     proc = alloc_proc();
     proc->pid = get_pid();
+    cprintf("proc %d %s now UNINIT\n", proc->pid, get_proc_name(proc));
     //    2. call setup_kstack to allocate a kernel stack for child process
     setup_kstack(proc);
     //    3. call copy_thread to setup tf & context in proc_struct
@@ -283,6 +285,7 @@ do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
     list_add_before(&proc_list, &proc->list_link);
     //    5. call wakup_proc to make the new child process RUNNABLE
     wakeup_proc(proc);
+    cprintf("proc %d %s now RUNNABLE\n", proc->pid, get_proc_name(proc));
     //    7. set ret vaule using child proc's pid
     nr_process++;
     ret = proc->pid;
@@ -329,6 +332,7 @@ repeat:
 		cprintf("do_wait: has kid begin\n");
         current->state = PROC_SLEEPING;
         current->wait_state = WT_CHILD;
+	cprintf("proc %d %s now SLEEPING\n", pid, get_proc_name(find_proc(pid)));
         schedule();
         goto repeat;
     }
@@ -371,6 +375,7 @@ do_exit(int error_code) {
         }
 	}
     local_intr_restore(intr_flag);
+    cprintf("proc %d %s now ZOMBIE\n", current->pid, get_proc_name(current));
 	schedule();
     panic("do_exit will not return!! %d.\n", current->pid);
 }
@@ -384,6 +389,10 @@ init_main(void *arg) {
 	schedule();
     cprintf(" kernel_thread, pid = %d, name = %s ,  en.., Bye, Bye. :)\n",current->pid, get_proc_name(current));
     return 0;
+}
+
+void print_haha(void *arg) {
+  cprintf("233\n");
 }
 
 // proc_init - set up the first kernel thread idleproc "idle" by itself and 
@@ -418,8 +427,11 @@ proc_init(void) {
     set_proc_name(initproc1, "init1");
 	set_proc_name(initproc2, "init2");
     cprintf("proc_init:: Created kernel thread init_main--> pid: %d, name: %s\n",initproc1->pid, initproc1->name);
-	cprintf("proc_init:: Created kernel thread init_main--> pid: %d, name: %s\n",initproc2->pid, initproc2->name);
+    cprintf("proc_init:: Created kernel thread init_main--> pid: %d, name: %s\n",initproc2->pid, initproc2->name);
     assert(idleproc != NULL && idleproc->pid == 0);
+    
+    int pid3 = kernel_thread(print_haha, "print_haha", 0);
+    set_proc_name(find_proc(pid3), "print_haha");
 }
 
 // cpu_idle - at the end of kern_init, the first kernel thread idleproc will do below works
