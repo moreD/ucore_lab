@@ -372,6 +372,7 @@ copy_thread(struct proc_struct *proc, uintptr_t esp, struct trapframe *tf) {
  */
 int
 do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
+	cprintf("[LAB5-DISCUSSION] current process %d start forking...\n", current->pid);
     int ret = -E_NO_FREE_PROC;
     struct proc_struct *proc;
     if (nr_process >= MAX_PROCESS) {
@@ -447,6 +448,7 @@ bad_fork_cleanup_proc:
 //   3. call scheduler to switch to other process
 int
 do_exit(int error_code) {
+	cprintf("[LAB5-DISCUSSION] current process %d exiting...\n", current->pid);
     if (current == idleproc) {
         panic("idleproc exit.\n");
     }
@@ -504,6 +506,7 @@ do_exit(int error_code) {
  */
 static int
 load_icode(unsigned char *binary, size_t size) {
+	cprintf("[LAB5-DISCUSSION] process %d loading another binary...\n", current->pid);
     if (current->mm != NULL) {
         panic("load_icode: current->mm must be empty.\n");
     }
@@ -651,6 +654,7 @@ bad_mm:
 //           - call load_icode to setup new memory space accroding binary prog.
 int
 do_execve(const char *name, size_t len, unsigned char *binary, size_t size) {
+	cprintf("[LAB5-DISCUSSION] process %d executing...\n", current->pid);
     struct mm_struct *mm = current->mm;
     if (!user_mem_check(mm, (uintptr_t)name, len, 0)) {
         return -E_INVAL;
@@ -687,6 +691,7 @@ execve_exit:
 // do_yield - ask the scheduler to reschedule
 int
 do_yield(void) {
+	cprintf("[LAB5-DISCUSSION] process %d yielding...\n", current->pid);
     current->need_resched = 1;
     return 0;
 }
@@ -696,6 +701,7 @@ do_yield(void) {
 // NOTE: only after do_wait function, all resources of the child proces are free.
 int
 do_wait(int pid, int *code_store) {
+	cprintf("[LAB5-DISCUSSION] process %d waiting...\n", current->pid);
     struct mm_struct *mm = current->mm;
     if (code_store != NULL) {
         if (!user_mem_check(mm, (uintptr_t)code_store, sizeof(int), 1)) {
@@ -757,6 +763,7 @@ found:
 // do_kill - kill process with pid by set this process's flags with PF_EXITING
 int
 do_kill(int pid) {
+	cprintf("[LAB5-DISCUSSION] process %d being killed...\n", current->pid);
     struct proc_struct *proc;
     if ((proc = find_proc(pid)) != NULL) {
         if (!(proc->flags & PF_EXITING)) {
@@ -814,6 +821,13 @@ user_main(void *arg) {
     panic("user_main execve failed.\n");
 }
 
+static int
+user_hello(void *arg) {
+	cprintf("[LAB5-DISCUSSION] executing hello\n");
+    KERNEL_EXECVE(exit);
+    panic("user_hello execve failed.\n");
+}
+
 // init_main - the second kernel thread used to create user_main kernel threads
 static int
 init_main(void *arg) {
@@ -824,6 +838,12 @@ init_main(void *arg) {
     if (pid <= 0) {
         panic("create user_main failed.\n");
     }
+
+    int pid2 = kernel_thread(user_hello, NULL, 0);
+    if (pid2 <= 0) {
+        panic("create user_hello failed.\n");
+    }
+
 
     while (do_wait(0, NULL) == 0) {
         schedule();
