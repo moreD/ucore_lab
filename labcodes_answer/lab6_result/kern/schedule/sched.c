@@ -15,6 +15,7 @@ static struct run_queue *rq;
 
 static inline void
 sched_class_enqueue(struct proc_struct *proc) {
+	cprintf("process %d enqueue\n", proc->pid);
     if (proc != idleproc) {
         sched_class->enqueue(rq, proc);
     }
@@ -22,17 +23,21 @@ sched_class_enqueue(struct proc_struct *proc) {
 
 static inline void
 sched_class_dequeue(struct proc_struct *proc) {
+	cprintf("process %d dequeue\n", proc->pid);
     sched_class->dequeue(rq, proc);
 }
 
 static inline struct proc_struct *
 sched_class_pick_next(void) {
-    return sched_class->pick_next(rq);
+	struct proc_struct *proc = sched_class->pick_next(rq);
+	cprintf("pick process %d for next run\n", proc->pid);
+	return proc;
 }
 
 static void
 sched_class_proc_tick(struct proc_struct *proc) {
     if (proc != idleproc) {
+		cprintf("process %d tick once\n", proc->pid);
         sched_class->proc_tick(rq, proc);
     }
     else {
