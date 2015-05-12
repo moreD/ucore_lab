@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 import random
 import numpy as np
@@ -43,20 +44,41 @@ class Bankers(object):
     def ExecuteProcess(self,index):
 
         #check if less avaliable than Request
-        # YOUR CODE, YOUR ID
+        # 2013011407
+        self.need = self.CalcNeed();
+        num = len(self.RESOURCE);
+        for i in range(0, num):
+            if (self.avaliable[i] < self.need[index][i]):
+                return False
         #check END here
 
         #allocating what they need.
         # YOUR CODE, YOUR ID
+        for i in range(0, num):
+            self.allocated[index][i] = self.max[index][i]
+        self.finished[index] = True
+        self.avaliable = self.CalcAvaliable();
+        self.need = self.CalcNeed();
+        return True
         #allocating END here
-        pass
 
     def TempSafeCheckAfterRelease(self):
         #check if at least one request can be done after previous process done. not check whole sequances.
         #if every element of Requests can't accepted after previous process done, this mean it is not safe state
         # YOUR CODE, YOU ID
+        self.need = self.CalcNeed();
+        cnt = len(self.allocated);
+        num = len(self.RESOURCE);
+        for index in range(0, cnt):
+            safe = True;
+            for i in range(0, num):
+                if (self.avaliable[i] < self.need[index][i]):
+                    safe = False
+                    break
+            if safe:
+                return True
+        return False
         #check END here
-        pass
 
     def print_matrixes(self):
         print "_____________________________________________"
