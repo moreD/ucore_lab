@@ -245,9 +245,20 @@ class fs:
 
         inum = self.nameToInum[tfile]
 
-    # YOUR CODE, YOUR ID
+    # 2013011407
         # IF inode.refcnt ==1, THEN free data blocks first, then free inode, ELSE dec indoe.refcnt
         # remove from parent directory: delete from parent inum, delete from parent addr
+        if (self.inodes[inum].getRefCnt() == 1):
+            self.dataFree(inum)
+            self.inodeFree(inum)
+        else:
+            self.inodes[inum].decRefCnt()
+
+        parent = self.getParent(tfile)
+        inum = self.nameToInum[parent]
+        self.inodes[inum].decRefCnt()
+        addr = self.inodes[inum].getAddr()
+        self.data[addr].delDirEntry(tfile)
     # DONE
 
         # finally, remove from files list
@@ -262,6 +273,19 @@ class fs:
         # now, find inumber of target
         # inc parent ref count
         # now add to directory
+        inum = self.nameToInum[parent]
+        addr = self.inodes[inum].getAddr()
+        if (self.data[addr].getFreeEntries() == 0):
+            return -1
+        if (self.data[addr].dirEntryExists(newfile)):
+            return -1
+
+        self.inodes[inum].incRefCnt()
+
+        addr = self.inodes[inum].getAddr()
+        tinum = self.nameToInum[target]
+        self.data[addr].addDirEntry(newfile, tinum)
+        self.inodes[tinum].incRefCnt()
     # DONE
         return tinum
 
@@ -275,6 +299,28 @@ class fs:
         # now ok to init inode properly
         # inc parent ref count
         # and add to directory of parent
+        inum = self.nameToInum[parent]
+        addr = self.inodes[inum].getAddr()
+        if (self.data[addr].getFreeEntries() == 0):
+            return -1
+        if (self.data[addr].dirEntryExists(newfile)):
+            return -1
+        ninum = self.inodeAlloc()
+        if (ninum == -1):
+            return -1
+
+        if (ftype == 'd'):
+            addr = self.dataAlloc()
+            self.data[addr].setType(ftype)
+            self.inodes[ninum].setAll(ftype, addr, 2)
+            self.data[addr].addDirEntry('.', ninum)
+            self.data[addr].addDirEntry('..', inum)
+        else:
+            self.inodes[ninum].setAll(ftype, -1, 1)
+
+        self.data[inum].addDirEntry(newfile, ninum)
+        self.inodes[inum].incRefCnt()
+        inum = ninum
     # DONE
         return inum
 
@@ -287,6 +333,15 @@ class fs:
         # file is full?
         # no data blocks left
         # write file data
+        if (curSize == 0):
+            addr = self.dataAlloc()
+            if (addr == -1):
+                return -1
+            self.inodes[inum].setAddr(addr)
+            self.data[addr].setType('f')
+        else:
+            addr = self.inodes[inum].getAddr()
+        self.data[addr].addData(data)
     # DONE
 
         if printOps:
